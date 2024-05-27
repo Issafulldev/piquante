@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require('helmet');
 const app = express();
 const mongoose = require('mongoose');
 
@@ -13,12 +14,12 @@ const path = require('path');
 // Vérification des variables d'environnement
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL is not defined in .env file');
-  process.exit(1); // Arrêtez l'application si la variable n'est pas définie
+  process.exit(1);
 }
 
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET is not defined in .env file');
-  process.exit(1); // Arrêtez l'application si la variable n'est pas définie
+  process.exit(1);
 }
 
 // Gestion de la connexion à MongoDB
@@ -27,6 +28,8 @@ mongoose.connect(process.env.DATABASE_URL)
   .catch(err => {
     console.error('Connexion à MongoDB échouée !', err.message);
   });
+
+app.use(helmet());
 
 // Middleware pour parser le JSON
 app.use(express.json());
@@ -44,4 +47,3 @@ app.use('/api/auth', userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
-

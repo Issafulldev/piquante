@@ -72,8 +72,19 @@ exports.modifySauce = (req, res, next) => {
       if (sauce.userId != req.auth.userId) {
         res.status(401).json({ message: 'Not authorized' });
       } else {
+        const oldImageUrl = sauce.imageUrl;
+        const filename = oldImageUrl.split('/images/')[1];
+
         Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié !' }))
+          .then(() => {
+            if (req.file) {
+              fs.unlink(`images/${filename}`, (err) => {
+                if (err) console.log(err);
+                else console.log(`Deleted old image: ${filename}`);
+              });
+            }
+            res.status(200).json({ message: 'Objet modifié !' });
+          })
           .catch(error => res.status(401).json({ error }));
       }
     })
@@ -126,7 +137,7 @@ exports.likeSauce = (req, res, next) => {
         if (sauce.usersLiked.includes(userId)) {
           sauce.usersLiked.pull(userId);
           sauce.likes--;
-        } else if (sauce.usersDisliked.includes(userId)) {
+        } if (sauce.usersDisliked.includes(userId)) {
           sauce.usersDisliked.pull(userId);
           sauce.dislikes--;
         }
