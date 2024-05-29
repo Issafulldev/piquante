@@ -29,10 +29,9 @@ mongoose.connect(process.env.DATABASE_URL)
     console.error('Connexion à MongoDB échouée !', err.message);
   });
 
-app.use(helmet());
-
-// Middleware pour parser le JSON
-app.use(express.json());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
 
 // Configuration des CORS
 app.use((req, res, next) => {
@@ -41,6 +40,9 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
+
+// Middleware pour parser le JSON
+app.use(express.json());
 
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
